@@ -1,6 +1,6 @@
 const { Server } = require('socket.io');
 const Redis = require('ioredis');
-const config = require('../config');
+const config = require('./config');
 const { createBroker } = require('./broker');
 const { createSocket } = require('./socket');
 

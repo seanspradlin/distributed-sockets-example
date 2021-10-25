@@ -1,5 +1,5 @@
 const { io } = require('socket.io-client');
-const config = require('../config');
+const config = require('./config');
 
 const port = config.get('port');
 const session = config.get('session');

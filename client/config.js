@@ -13,14 +13,6 @@ const config = convict({
     format: String,
     default: 'Hank',
   },
-  redis: {
-    port: {
-      doc: 'Redis Port',
-      env: 'REDIS_PORT',
-      format: 'port',
-      default: 6379,
-    },
-  },
   port: {
     doc: 'Server port',
     arg: 'port',
