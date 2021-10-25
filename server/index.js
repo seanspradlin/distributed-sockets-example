@@ -19,10 +19,10 @@ socket.events.on('unsubscribe', async (session) => {
   await broker.unsubscribeFromSession(session);
 });
 
-socket.events.on('message', async (session, message) => {
-  await broker.publish(session, message);
+socket.events.on('message', async (session, sender, message) => {
+  await broker.publish(session, sender, message);
 });
 
-broker.subscriber.on('message', async (session, message) => {
-  await socket.send(session, message);
+broker.events.on('message', async (session, sender, message) => {
+  await socket.send(session, sender, message);
 });

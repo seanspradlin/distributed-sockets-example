@@ -3,9 +3,10 @@ const config = require('../config');
 
 const port = config.get('port');
 const session = config.get('session');
+const username = config.get('username');
 
 const uri = `ws://localhost:${port}`;
-const opts = { query: { session } };
+const opts = { query: { session, username } };
 const socket = io(uri, opts);
 
 socket.on('connect', () => {
@@ -20,8 +21,8 @@ socket.on('connect', () => {
   }, 3000);
 });
 
-socket.on('message', (message) => {
-  console.log(`Received: ${message}`);
+socket.on('message', (sender, message) => {
+  console.log(`${sender}: ${message}`);
 });
 
 socket.on('disconnect', () => {

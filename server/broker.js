@@ -1,3 +1,5 @@
+const EventEmitter = require('events');
+
 async function subscribeToSession(session) {
   console.info(`Subscribing to session ${session}`);
   return new Promise((resolve, reject) => {
@@ -24,10 +26,11 @@ async function unsubscribeFromSession(session) {
   });
 }
 
-async function publish(session, message) {
-  console.log(`Publishing ${session}:${message}`);
+async function publish(session, sender, message) {
+  console.log(`Publishing ${session}:${sender}:${message}`);
   return new Promise((resolve, reject) => {
-    this.publisher.publish(session, message, (error) => {
+    const payload = JSON.stringify([sender, message]);
+    this.publisher.publish(session, payload, (error) => {
       if (error) {
         reject(error);
       } else {
@@ -37,19 +40,30 @@ async function publish(session, message) {
   });
 }
 
+function attachSubscriptionHandler() {
+  this.subscriber.on('message', (session, payload) => {
+    const [sender, message] = JSON.parse(payload);
+    this.events.emit('message', session, sender, message);
+  });
+}
+
 function createBroker({ redis }) {
+  const events = new EventEmitter();
   const broker = {
+    events,
     subscriber: redis.duplicate(),
     publisher: redis.duplicate(),
     subscribeToSession,
     unsubscribeFromSession,
     publish,
   };
+  attachSubscriptionHandler.call(broker);
   return broker;
 }
 
 module.exports = {
   createBroker,
+  attachSubscriptionHandler,
   subscribeToSession,
   unsubscribeFromSession,
   publish,

@@ -7,6 +7,12 @@ const config = convict({
     format: ['development', 'testing', 'staging', 'production'],
     default: 'development',
   },
+  username: {
+    doc: 'Mock username for a client',
+    arg: 'name',
+    format: String,
+    default: 'Hank',
+  },
   redis: {
     port: {
       doc: 'Redis Port',
