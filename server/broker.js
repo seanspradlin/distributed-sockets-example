@@ -1,5 +1,11 @@
 const EventEmitter = require('events');
 
+/**
+  * Subscribe to a session
+  * @async
+  * @param {string} session
+  * @returns {promise}
+  */
 async function subscribeToSession(session) {
   console.info(`Subscribing to session ${session}`);
   return new Promise((resolve, reject) => {
@@ -13,6 +19,12 @@ async function subscribeToSession(session) {
   });
 }
 
+/**
+  * Unsubscribe from the session when all interested parties have disconnected
+  * @async
+  * @param {string} session
+  * @returns {promise}
+  */
 async function unsubscribeFromSession(session) {
   console.info(`Unsubscribing from session ${session}`);
   return new Promise((resolve, reject) => {
@@ -26,6 +38,14 @@ async function unsubscribeFromSession(session) {
   });
 }
 
+/**
+  * Sends a message up to the broker to be distributed among peers
+  * @async
+  * @param {String} session
+  * @param {String} sender
+  * @param {String} message
+  * @returns {Promise}
+  */
 async function publish(session, sender, message) {
   console.log(`Publishing ${session}:${sender}:${message}`);
   return new Promise((resolve, reject) => {
@@ -40,6 +60,10 @@ async function publish(session, sender, message) {
   });
 }
 
+/**
+  * Middleware handler to convert Redis subscriber output into our preferred
+  * format.
+  */
 function attachSubscriptionHandler() {
   this.subscriber.on('message', (session, payload) => {
     const [sender, message] = JSON.parse(payload);
@@ -47,6 +71,20 @@ function attachSubscriptionHandler() {
   });
 }
 
+/**
+  * A service for connecting to a backend like Redis or Kafka for pubsub
+  * messaging
+  * @typedef {Object} Broker
+  * @property {EventEmitter} events
+  * @property {Function} subscribeToSession
+  * @property {Function} unsubscribeFromSession
+  * @property {Function} publish
+  */
+
+/**
+  * Creates an instance of the broker and initializes it
+  * @returns {Broker}
+  */
 function createBroker({ redis }) {
   const events = new EventEmitter();
   const broker = {

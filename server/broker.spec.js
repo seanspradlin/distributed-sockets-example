@@ -70,10 +70,77 @@ describe('broker', () => {
   });
 
   describe('unsubscribeFromSession', () => {
+    it('should return an error in failures', (done) => {
+      const calledArgs = {};
+      const context = {
+        subscriber: {
+          unsubscribe(params, fn) {
+            calledArgs.unsubscribe = params;
+            fn(new Error());
+          },
+        },
+      };
+      unsubscribeFromSession.call(context, 'foo')
+        .then(() => {
+          done(new Error('Should not have resolved'));
+        })
+        .catch(() => {
+          expect(calledArgs.unsubscribe).to.equal('foo');
+          done();
+        });
+    });
 
+    it('should resolve if invoked properly', async () => {
+      const calledArgs = {};
+      const context = {
+        subscriber: {
+          unsubscribe(params, fn) {
+            calledArgs.unsubscribe = params;
+            fn(null, 1);
+          },
+        },
+      };
+      await unsubscribeFromSession.call(context, 'foo');
+      expect(calledArgs.unsubscribe).to.equal('foo');
+    });
   });
 
   describe('publish', () => {
+    it('should return an error in failures', (done) => {
+      const context = {
+        publisher: {
+          publish(params, fn) {
+            fn(new Error());
+          },
+        },
+      };
+      publish.call(context)
+        .then(() => {
+          done(new Error('Should not have resolved'));
+        })
+        .catch(() => {
+          done();
+        });
+    });
 
+    it('should publish the message in the proper format', async () => {
+      const calledArgs = {};
+      const context = {
+        publisher: {
+          publish(channel, message, fn) {
+            calledArgs.channel = channel;
+            calledArgs.message = message;
+            fn();
+          },
+        },
+      };
+
+      await publish.call(context, 'foo', 'bar', 'baz');
+
+      const expectedChannel = 'foo';
+      const expectedMessage = JSON.stringify(['bar', 'baz']);
+      expect(calledArgs.channel).to.equal(expectedChannel);
+      expect(calledArgs.message).to.equal(expectedMessage);
+    });
   });
 });
