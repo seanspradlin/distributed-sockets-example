@@ -1,6 +1,7 @@
 const EventEmitter = require('events');
 const { expect } = require('chai');
 const {
+  createBroker,
   attachSubscriptionHandler,
   subscribeToSession,
   unsubscribeFromSession,
@@ -141,6 +142,23 @@ describe('broker', () => {
       const expectedMessage = JSON.stringify(['bar', 'baz']);
       expect(calledArgs.channel).to.equal(expectedChannel);
       expect(calledArgs.message).to.equal(expectedMessage);
+    });
+  });
+
+  describe('createBroker', () => {
+    it('should return the appropriate shape', () => {
+      const redis = {
+        duplicate: () => new EventEmitter(),
+      };
+      const broker = createBroker({ redis });
+      expect(broker).to.have.property('events')
+        .that.is.instanceOf(EventEmitter);
+      expect(broker).to.have.property('subscribeToSession')
+        .that.is.a('function');
+      expect(broker).to.have.property('unsubscribeFromSession')
+        .that.is.a('function');
+      expect(broker).to.have.property('publish')
+        .that.is.a('function');
     });
   });
 });
