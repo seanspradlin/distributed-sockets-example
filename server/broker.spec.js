@@ -1,3 +1,4 @@
+const EventEmitter = require('events');
 const { expect } = require('chai');
 const {
   attachSubscriptionHandler,
@@ -8,6 +9,28 @@ const {
 
 describe('broker', () => {
   describe('attachSubscriptionHandler', () => {
+    it('should emit messages from redis', (done) => {
+      const context = {
+        subscriber: new EventEmitter(),
+        events: new EventEmitter(),
+      };
+      attachSubscriptionHandler.call(context);
+      context.events.on('message', (session, sender, message) => {
+        expect(session).to.equal('foo');
+        expect(sender).to.equal('bar');
+        expect(message).to.equal('baz');
+
+        // cleanup
+        context.subscriber.removeAllListeners('message');
+        context.events.removeAllListeners('message');
+        done();
+      });
+      context.subscriber.emit(
+        'message',
+        'foo',
+        JSON.stringify(['bar', 'baz']),
+      );
+    });
   });
 
   describe('subscribeToSession', () => {
