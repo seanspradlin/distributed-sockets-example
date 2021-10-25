@@ -83,6 +83,8 @@ function attachSubscriptionHandler() {
 
 /**
   * Creates an instance of the broker and initializes it
+  * @param {Object} dependencies
+  * @param {RedisClient} dependencies.redis
   * @returns {Broker}
   */
 function createBroker({ redis }) {

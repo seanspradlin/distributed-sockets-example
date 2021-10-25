@@ -1,5 +1,13 @@
 const EventEmitter = require('events');
 
+/**
+  * Sends a message to all sockets listening to a session
+  * @async
+  * @param {String} session
+  * @param {String} username
+  * @param {String} message
+  * @returns {Promise}
+  */
 async function send(session, username, message) {
   const sockets = this.sessions[session];
   if (!sockets) {
@@ -13,6 +21,10 @@ async function send(session, username, message) {
   });
 }
 
+/**
+  * Registers a socket to distribution list
+  * @param {Socket} socket
+  */
 function registerSocket(socket) {
   console.info(`${socket.id} connected`);
   const { session, username } = socket.handshake.query;
@@ -26,6 +38,10 @@ function registerSocket(socket) {
   });
 }
 
+/**
+  * Unregisters a socket from distribution list
+  * @param {Socket} socket
+  */
 function deregisterSocket(socket) {
   console.info(`${socket.id} disconnected`);
   const { session } = socket.handshake.query;
@@ -38,6 +54,17 @@ function deregisterSocket(socket) {
   }
 }
 
+/**
+  * @typedef {Object} SocketService
+  * @property {Function} send
+  */
+
+/**
+  * Creates an instance of the socket service and initializes it
+  * @param {Object} dependencies
+  * @param {SocketioAgent} dependencies.io
+  * @returns {SocketService}
+  */
 function createSocket({ io }) {
   const events = new EventEmitter();
   const sessions = {};
